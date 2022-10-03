@@ -25,7 +25,7 @@ func main() {
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "TFTP (c) 2022 ALBANESE Research Lab")
 		fmt.Fprintln(os.Stderr, "Trivial File Transfer Protocol Tool")
-	desc := `TFTP Implements:
+		desc := `TFTP Implements:
    RFC 1350 - The TFTP Protocol (Revision 2)
    RFC 2347 - TFTP Option Extension
    RFC 2348 - TFTP Blocksize Option
