@@ -3,6 +3,7 @@ TFTP server and client library for Golang
 
 [![GoDoc](https://godoc.org/github.com/pin/tftp?status.svg)](https://godoc.org/github.com/pin/tftp)
 [![Build Status](https://travis-ci.org/pin/tftp.svg?branch=master)](https://travis-ci.org/pin/tftp)
+[![GitHub downloads](https://img.shields.io/github/downloads/pedroalbanese/tftp/total.svg?logo=github&logoColor=white)](https://github.com/pedroalbanese/tftp/releases)
 
 Implements:
  * [RFC 1350](https://tools.ietf.org/html/rfc1350) - The TFTP Protocol (Revision 2)
