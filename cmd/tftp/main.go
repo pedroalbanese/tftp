@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"os"
 	"log"
+	"os"
 	"time"
 
 	"github.com/pedroalbanese/tftp"
@@ -14,9 +14,10 @@ import (
 var (
 	ftp    = flag.String("ftp", "client", "Server or Client.")
 	iport  = flag.String("ipport", "", "Local Port/remote's side Public IP:Port.")
-	path   = flag.String("file", "", "File to Download/Upload.")
-	upload = flag.Bool("upload", false, "Upload file to server.")
+	nodown = flag.Bool("nodown", false, "Does not allow Download files from server.")
 	noup   = flag.Bool("noup", false, "Does not allow Upload files to server.")
+	path   = flag.String("file", "", "File to Download/Upload.")
+	upload = flag.Bool("upload", false, "Upload file to server. (default Download)")
 )
 
 func main() {
@@ -41,15 +42,16 @@ func main() {
 		if *iport != "" {
 			ipport = *iport
 		}
-		// use nil in place of handler to disable read or write operations
 		var s *tftp.Server
 		if *noup {
 			s = tftp.NewServer(readHandler, nil)
+		} else if *nodown {
+			s = tftp.NewServer(nil, writeHandler)
 		} else {
 			s = tftp.NewServer(readHandler, writeHandler)
 		}
 		s.SetTimeout(5 * time.Second)
-		err := s.ListenAndServe(":"+ipport)
+		err := s.ListenAndServe(":" + ipport)
 		if err != nil {
 			fmt.Fprintf(os.Stdout, "server: %v\n", err)
 			os.Exit(1)
@@ -86,8 +88,8 @@ func main() {
 				fmt.Fprintf(os.Stdout, "client: %v\n", err)
 				os.Exit(1)
 			}
-		        raddr := rf.(tftp.OutgoingTransfer).RemoteAddr()
-		        log.Println("RRQ from", raddr.String())
+			raddr := rf.(tftp.OutgoingTransfer).RemoteAddr()
+			log.Println("RRQ from", raddr.String())
 			fmt.Printf("%d bytes sent\n", n)
 		} else {
 			c, err := tftp.NewClient(ipport)
@@ -105,7 +107,6 @@ func main() {
 				fmt.Fprintf(os.Stdout, "client: %v\n", err)
 				os.Exit(1)
 			}
-			// Optionally obtain transfer size before actual data.
 			if n, ok := wt.(tftp.IncomingTransfer).Size(); ok {
 				fmt.Printf("Transfer size: %d\n", n)
 			}
@@ -132,13 +133,12 @@ func readHandler(filename string, rf io.ReaderFrom) error {
 		return err
 	}
 	file.Close()
-        raddr := rf.(tftp.OutgoingTransfer).RemoteAddr()
-        log.Println("RRQ from", raddr.String())
+	raddr := rf.(tftp.OutgoingTransfer).RemoteAddr()
+	log.Println("RRQ from", raddr.String())
 	fmt.Printf("%d bytes sent\n", n)
 	return nil
 }
 
-// writeHandler is called when client starts file upload to server
 func writeHandler(filename string, wt io.WriterTo) error {
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
 	if err != nil {
